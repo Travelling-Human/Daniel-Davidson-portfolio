@@ -691,26 +691,27 @@
         <!-- FORM -->
         <div>
           <p class="contact-info-title">📩 Drop a Message</p>
-          <div class="contact-form">
+          <form class="contact-form" action="https://formspree.io/f/mbdvjpzw" method="POST">
             <div class="form-group">
               <label for="cf-name">YOUR NAME</label>
-              <input type="text" id="cf-name" placeholder="e.g. Jane Smith" autocomplete="name" />
+              <input type="text" id="cf-name" name="name" placeholder="e.g. Jane Smith" autocomplete="name" required />
             </div>
             <div class="form-group">
               <label for="cf-email">EMAIL ADDRESS</label>
-              <input type="email" id="cf-email" placeholder="jane@company.com" autocomplete="email" />
+              <input type="email" id="cf-email" name="email" placeholder="jane@company.com" autocomplete="email" required />
             </div>
             <div class="form-group">
               <label for="cf-subject">SUBJECT</label>
-              <input type="text" id="cf-subject" placeholder="Job opportunity / Collaboration" />
+              <input type="text" id="cf-subject" name="subject" placeholder="Job opportunity / Collaboration" />
             </div>
             <div class="form-group">
               <label for="cf-msg">MESSAGE</label>
-              <textarea id="cf-msg" placeholder="Hi Daniel, I'd love to discuss..."></textarea>
+              <textarea id="cf-msg" name="message" placeholder="Hi Daniel, I'd love to discuss..." required></textarea>
             </div>
-            <button class="btn-submit" onclick="handleForm()">▶ SEND MESSAGE</button>
+            <input type="hidden" name="_subject" value="New Portfolio Contact Submission" />
+            <button type="submit" class="btn-submit">▶ SEND MESSAGE</button>
             <div id="form-toast">✔ MESSAGE SENT! I'll reply soon.</div>
-          </div>
+          </form>
         </div>
 
         <!-- DIRECT + SOCIAL -->
@@ -757,25 +758,31 @@
 </footer>
 
 <script>
-/* ─── CONTACT FORM (mailto fallback) ───────────────────────────────────── */
-function handleForm() {
-  const name    = document.getElementById('cf-name').value.trim();
-  const email   = document.getElementById('cf-email').value.trim();
-  const subject = document.getElementById('cf-subject').value.trim();
-  const msg     = document.getElementById('cf-msg').value.trim();
+const form = document.querySelector('.contact-form');
+const toast = document.getElementById('form-toast');
 
-  if (!name || !email || !msg) {
-    alert('Please fill in your name, email, and message!');
-    return;
-  }
+if(form){
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const body = encodeURIComponent(`From: ${name} <${email}>\n\n${msg}`);
-  const sub  = encodeURIComponent(subject || 'Portfolio Contact');
-  window.location.href = `mailto:danieldavidson62552@gmail.com?subject=${sub}&body=${body}`;
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
 
-  const toast = document.getElementById('form-toast');
-  toast.style.display = 'block';
-  setTimeout(() => { toast.style.display = 'none'; }, 5000);
+      if(response.ok){
+        toast.style.display = 'block';
+        form.reset();
+        setTimeout(() => { toast.style.display = 'none'; }, 5000);
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
+    } catch(err){
+      alert('Network error. Please try again.');
+    }
+  });
 }
 
 /* ─── NAV ACTIVE HIGHLIGHT ──────────────────────────────────────────────── */
